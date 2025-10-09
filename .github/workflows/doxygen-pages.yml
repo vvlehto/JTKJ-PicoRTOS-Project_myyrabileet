@@ -34,8 +34,8 @@ jobs:
       - name: Collect site
         run: |
           set -e
-          if [ -d "libs/TKJHAT/docs/build/html" ]; then
-            SRC="libs/TKJHAT/docs/build/html"
+          if [ -d "libs/TKJHAT/docs/out/html" ]; then
+            SRC="libs/TKJHAT/docs/out/html"
           else
             SRC="libs/TKJHAT/docs/html"
           fi
