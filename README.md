@@ -1,3 +1,6 @@
+## Important links
+[TKJHAT library](https://unioulu-ubicomp-programming-courses.github.io/JTKJ-PicoRTOS-Project/)
+
 ## Installation in Linux with VSCode extension
 
 This section explains how to install and configure a **development environment for Raspberry Pi Pico (and Pico 2)** using **Lubuntu 24.04**.  
