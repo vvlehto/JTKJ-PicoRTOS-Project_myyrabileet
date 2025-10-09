@@ -30,22 +30,16 @@ jobs:
         working-directory: ./libs/TKJHAT/docs
         run: doxygen Doxyfile
 
-      # Collect the generated site regardless of OUTPUT_DIRECTORY setting
-      - name: Collect site
+      # Sanity check the expected output path
+      - name: Check output exists
         run: |
-          set -e
-          if [ -d "libs/TKJHAT/docs/out/html" ]; then
-            SRC="libs/TKJHAT/docs/out/html"
-          else
-            SRC="libs/TKJHAT/docs/html"
-          fi
-          mkdir -p site
-          cp -a "$SRC/." site/
+          test -f libs/TKJHAT/docs/out/html/index.html || (echo "Missing libs/TKJHAT/docs/out/html/index.html"; exit 1)
 
+      # Upload exactly what Doxygen generated
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: libs/TKJHAT/docs/out/html
 
   deploy:
     needs: build
