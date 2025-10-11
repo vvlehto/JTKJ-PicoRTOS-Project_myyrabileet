@@ -105,7 +105,7 @@ void toggle_red_led() {
     gpio_put(RED_LED_PIN, !curr);
 }
 
-void toglle_led() {
+void toggle_led() {
     return toggle_red_led();
 }
 
