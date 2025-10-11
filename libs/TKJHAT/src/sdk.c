@@ -68,6 +68,9 @@ SOFTWARE.
 void init_hat_sdk(){
     //Turn off the RGB
     stop_rgb_led();
+
+    //Start the I2C
+    init_i2c_default();
 }
 
 /* =========================

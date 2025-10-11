@@ -67,9 +67,8 @@ SOFTWARE.
  *
  * int main(void) {
  *     stdio_init_all();
- *     init_i2c_default; // set up I2C first
  *
- *     init_hat_sdk();          // put board in a known state (e.g., RGB off)
+ *     init_hat_sdk();          // put board in a known state (e.g., RGB off) and start default i2c
  *     init_red_led();          // optional: prepare red LED
  *     init_rgb_led();          // optional: enable RGB PWM
  *
@@ -86,8 +85,8 @@ SOFTWARE.
  * @endcode
  *
  * ### Notes
- * - `init_hat_sdk()` only prepares the board state (e.g., turns RGB LED off). It does **not**
- *   initialize peripherals; call the per-device init functions you need.
+ * - `init_hat_sdk()` only prepares the board state (e.g., turns RGB LED off) and initialize default I2C to connect the peripherals
+ *    It does **not** initialize peripherals; call the per-device init functions you need.
  *
  * ### Dependencies
  * - Raspberry Pi Pico SDK (GPIO, PWM, I2C, PIO, DMA where applicable)
@@ -217,6 +216,7 @@ SOFTWARE.
  * @brief Initialize the HAT SDK.
  *
  * This function performs the initial setup of the HAT board.
+ * Starts the default I2C for communicating with devices.
  * It does not initialize any peripherals.
  */
 void init_hat_sdk(void);
