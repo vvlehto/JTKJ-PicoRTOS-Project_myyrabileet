@@ -10,12 +10,19 @@
 
 #include "tkjhat/sdk.h"
 
-// Exercise 4. Include the libraries necessaries to use the usb-serial-debug
-// Tehtävä 4 . Lisää usb-serial-debugin käyttämiseen tarvittavat kirjastot.
+// Exercise 4. Include the libraries necessaries to use the usb-serial-debug, and tinyusb
+// Tehtävä 4 . Lisää usb-serial-debugin ja tinyusbin käyttämiseen tarvittavat kirjastot.
 
+#include <tusb.h>
 #include "usbSerialDebug/helper.h"
 
-#define DEFAULT_STACK_SIZE 2048 
+#if CFG_TUSB_OS != OPT_OS_FREERTOS
+#error "This should be using FREERTOS but the CFG_TUSB_OS is not OPT_OS_FREERTOS"
+#endif
+
+#define DEFAULT_STACK_SIZE 2048
+#define CDC_ITF_TX      1
+
 
 // Tehtävä 3: Tilakoneen esittely
 // Exercise 3: Definition of the state machine
@@ -77,7 +84,7 @@ static void print_task(void *arg){
     
     char buf[12];
     char buf2[25];
-    for(;;){
+    while(1){
         
         // Tehtävä 3: Kun tila on oikea, tulosta sensoridata merkkijonossa debug-ikkunaan
         //            Muista tilamuutos
@@ -103,17 +110,22 @@ static void print_task(void *arg){
         //            Esimerkki löytyy hello_dual_cdc-projektista.
         //            Tällä menetelmällä kirjoitettu data tulee antaa CSV-muodossa:
         //            timestamp, luminance
+
+        
         if (programState == DATA_READY){
             //printf("Lux:%ld\n",ambientLight);
-            sprintf(buf,"Lux:%ld\n",ambientLight);
-            usb_serial_print(buf);
-            sprintf(buf2,"%ld,%d",(uint32_t)pdMxTaskGetTickCount()*portTICK_PERIOD_MS,ambientLight);
-            tud_cdc_n_write(1,buf2,strlen(buf2));
+            if (usb_serial_connected()){
+                sprintf(buf,"Lux:%ld\n",ambientLight);
+                usb_serial_print(buf);
+                usb_serial_flush();
+            }
+            if(tud_cdc_n_connected(CDC_ITF_TX)){
+                sprintf(buf2,"%ld,%d\n",(uint32_t)xTaskGetTickCount()*portTICK_PERIOD_MS,ambientLight);
+                tud_cdc_n_write(1,buf2,strlen(buf2));
+                tud_cdc_n_write_flush(CDC_ITF_TX);
+            }
             programState = WAITING;
         }
-
-  
-
 
         // Just for sanity check. Please, comment this out
         // printf("printTask\n");
@@ -138,20 +150,18 @@ static void usbTask(void *arg) {
 int main() {
 
     // Exercise 4: Comment the statement stdio_init_all(); 
-    //             Instead, add adequate statements to enable the TinyUSB library and the usb-serial-debug.
+    //             Instead, add AT THE END OF MAIN (before vTaskStartScheduler();) adequate statements to enable the TinyUSB library and the usb-serial-debug.
     //             You can see hello_dual_cdc for help
     //             In CMakeLists.txt add the cfg-dual-usbcdc
     //             In CMakeLists.txt deactivate pico_enable_stdio_usb
     // Tehtävä 4:  Kommentoi lause stdio_init_all();
-    //             Lisää sen sijaan tarvittavat komennot aktivoidaksesi TinyUSB-kirjaston ja usb-serial-debugin.
+    //             Sen sijaan lisää MAIN LOPPUUN (ennen vTaskStartScheduler();) tarvittavat komennot aktivoidaksesi TinyUSB-kirjaston ja usb-serial-debugin.
     //             Voit katsoa apua esimerkistä hello_dual_cdc.
     //             Lisää CMakeLists.txt-tiedostoon cfg-dual-usbcdc
     //             Poista CMakeLists.txt-tiedostosta käytöstä pico_enable_stdio_usb
 
-    tusb_init();
-    usb_serial_init();
-
     //stdio_init_all();
+
     // Uncomment this lines if you want to wait till the serial monitor is connected
     /*while (!stdio_usb_connected()){
         sleep_ms(10);
@@ -169,7 +179,19 @@ int main() {
     init_led();
     gpio_set_irq_enabled_with_callback(BUTTON1, GPIO_IRQ_EDGE_RISE, true, btn_fxn);
     
+    
     TaskHandle_t hSensorTask, hPrintTask, hUSB = NULL;
+
+    // Exercise 4: Uncomment this xTaskCreate to create the task that enables dual USB communication.
+    // Tehtävä 4: Poista tämän xTaskCreate-rivin kommentointi luodaksesi tehtävän,
+    // joka mahdollistaa kaksikanavaisen USB-viestinnän.
+
+    xTaskCreate(usbTask, "usb", 2048, NULL, 3, &hUSB);
+    #if (configNUMBER_OF_CORES > 1)
+        vTaskCoreAffinitySet(hUSB, 1u << 0);
+    #endif
+
+
     // Create the tasks with xTaskCreate
     BaseType_t result = xTaskCreate(sensor_task, // (en) Task function
                 "sensor",                        // (en) Name of the task 
@@ -179,7 +201,7 @@ int main() {
                 &hSensorTask);                   // (en) A handle to control the execution of this task
 
     if(result != pdPASS) {
-        printf("Sensor task creation failed\n");
+        // printf("Sensor task creation failed\n");
         return 0;
     }
     result = xTaskCreate(print_task,  // (en) Task function
@@ -187,23 +209,18 @@ int main() {
                 DEFAULT_STACK_SIZE,   // (en) Size of the stack for this task (in words). Generally 1024 or 2048
                 NULL,                 // (en) Arguments of the task 
                 2,                    // (en) Priority of this task
-                &hPrintTask);        // (en) A handle to control the execution of this task
+                &hPrintTask);         // (en) A handle to control the execution of this task
 
     if(result != pdPASS) {
-        printf("Print Task creation failed\n");
+        // printf("Print Task creation failed\n");
         return 0;
     }
 
-    // Exercise 4: Uncomment this xTaskCreate to create the task that enables dual USB communication.
-    // Tehtävä 4: Poista tämän xTaskCreate-rivin kommentointi luodaksesi tehtävän,
-    // joka mahdollistaa kaksikanavaisen USB-viestinnän.
-
-    xTaskCreate(usbTask, "usb", 2048, NULL, 3, &hUSB);
-
-
+    tusb_init();
+    usb_serial_init();
     // Start the scheduler (never returns)
     vTaskStartScheduler();
-
+    
     // Never reach this line.
     return 0;
 }

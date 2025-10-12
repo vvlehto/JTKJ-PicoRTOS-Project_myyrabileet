@@ -89,7 +89,7 @@ add_subdirectory(examples/hello_blink)
 add_subdirectory(examples/hello_blink_freertos)
 # add_subdirectory(examples/hello_pico)
 # add_subdirectory(examples/hello_freertos)
-# add_subdirectory(examples/hello_dual_cdc)
+add_subdirectory(examples/hello_dual_cdc)
 # add_subdirectory(examples/hello_microphone)
 # add_subdirectory(examples/compilation_errors)
 add_subdirectory(examples/hello_hat)
@@ -120,8 +120,8 @@ target_link_libraries(${MAIN_TARGET}
         pico_stdlib
         FreeRTOS-Kernel
         FreeRTOS-Kernel-Heap4
-        TKJHAT_SDK
         usb_serial_debug
+        TKJHAT_SDK
 )
 
 # Include libraries necessaries to control the WiFi. If you are using the internal pico LED in W model, it is also 

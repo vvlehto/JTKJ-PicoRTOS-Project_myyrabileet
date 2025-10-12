@@ -11,6 +11,7 @@ target_link_libraries(hello_dual_cdc PRIVATE
   FreeRTOS-Kernel
   FreeRTOS-Kernel-Heap4
   usb_serial_debug
+  TKJHAT_SDK
 )
 
 pico_enable_stdio_usb(hello_dual_cdc 0)

@@ -204,6 +204,14 @@ Once the project is created, set the following configuration in `settings.json`:
 
 This ensures you’re using the CMake Tools extension rather than the Pico extension for building projects.
 
+NOTE: At some point the Ninja stop working inside the project (CMake could not find Ninja).
+Hence I had to add it by hand in `settings.json` //ADD RIGHT PATH TO NINJA. GENERALLY NINJA IS AUTOMATICALLY DETECTED, BUT FOR SOME REASON NOT ANYMORE. 
+    ```json
+    "cmake.configureArgs": [
+        "-DCMAKE_MAKE_PROGRAM:FILEPATH=${userHome}/.pico-sdk/ninja/v1.12.1/ninja"
+    ]
+    ```
+
 ---
 
 ### Step 10: Verify Installation
