@@ -238,6 +238,17 @@ void init_hat_sdk(void);
 void init_sw1(void);
 
 /**
+ * @brief Initializes button 1 (same as SW1).
+ *
+ * This function is a wrapper for @ref init_sw1, performing the same initialization
+ * as the SW1 switch setup. It configures GPIO 2 as a digital input using the 
+ * hardware pull-down resistor.
+ *
+ * @see init_sw1()
+ */
+void init_button1(void);
+
+/**
  * @brief Initialize switch SW2 (GPIO 22).
  *
  * Configures SW2 as a digital input with no pull resistors enabled. It uses hardware pull-down resistors.
@@ -246,6 +257,17 @@ void init_sw1(void);
  * @note SW2 is active-hig (pressed = 1, released = 0) 
  */
 void init_sw2(void);
+
+/**
+ * @brief Initializes button2 (same as SW2).
+ *
+ * This function is a wrapper for @ref init_sw2, performing the same initialization
+ * as the SW2 switch setup. It configures GPIO 22 as a digital input using the 
+ * hardware pull-down resistor.
+ *
+ * @see init_sw2()
+ */
+void init_button2(void);
 
 
 /* =========================
