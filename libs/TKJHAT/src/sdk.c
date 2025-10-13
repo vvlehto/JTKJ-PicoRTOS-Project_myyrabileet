@@ -943,7 +943,7 @@ int ICM42670_enable_accel_gyro_lp_mode(void) {
     return rc;
 }
 
-int start_sensor_with_default_values(void) {
+int ICM42670_start_with_default_values(void) {
     int rc;
 
     // Start accelerometer with defaults (e.g., 100 Hz, ±4 g)

@@ -964,7 +964,7 @@ int ICM42670_enable_accel_gyro_ln_mode(void);
  *
  * @return 0 on success, negative error code from the first failing call.
  */
-int start_sensor_with_default_values(void);
+int ICM42670_start_with_default_values(void);
 
 /**
  * @brief Read accelerometer, gyroscope, and temperature data.
